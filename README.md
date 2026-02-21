@@ -20,7 +20,7 @@ Note: Make sure you have the `@css/generic` permission otherwise you wont be abl
 2. `!money <amount> <player name>` gives a player money.
 
 ## Contact:
-If you have any issues, feedback, or feature requests please make an issue on the issues page. If you want to contact me directly about making custom plugins you can through discord (namethempguy).
+If you have any issues, feedback, or feature requests please make an issue on the issues page. If you want to contact me directly about making custom plugins you can through discord (robieless).
 
 ## License:
 This plugin is licensed under the MIT License. Feel free to use, modify, and distribute it in your servers. Attribution is appreciated but not required.

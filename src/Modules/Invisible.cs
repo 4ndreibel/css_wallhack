@@ -44,6 +44,16 @@ public class Invisible
         foreach (var invis in Globals.InvisiblePlayers)
         {
             if (!Util.IsPlayerValid(invis.Key)) continue;
+
+            var currentWeapon = invis.Key.PlayerPawn.Value.WeaponServices.ActiveWeapon.Get().As<CCSWeaponBase>();
+            if (currentWeapon.InReload && !invis.Value.HackyReload)
+            {
+                var data = Globals.InvisiblePlayers[invis.Key];
+                data.HackyReload = true;
+                Globals.InvisiblePlayers[invis.Key] = data;
+                SetPlayerInvisibleFor(invis.Key, currentWeapon.VData.DisallowAttackAfterReloadStartDuration);
+            }
+
             
             var alpha = 255f;
 
@@ -59,6 +69,9 @@ public class Invisible
                 pawn!.EntitySpottedState.Spotted = false;
                 pawn!.EntitySpottedState.SpottedByMask[0] = 0;
                 _entities.Add(pawn);
+                var data = Globals.InvisiblePlayers[invis.Key];
+                data.HackyReload = false;
+                Globals.InvisiblePlayers[invis.Key] = data;
             }
             else
                 _entities.Remove(pawn);
@@ -114,12 +127,14 @@ public class Invisible
         return HookResult.Continue;
     }
 
-    public static HookResult OnPlayerReload(EventWeaponReload @event, GameEventInfo info)
+    /*public static HookResult OnPlayerReload(EventWeaponReload @event, GameEventInfo info)
     {
+        var data = Globals.InvisiblePlayers[@event.Userid];
+        data.HackyReload = true;
         SetPlayerInvisibleFor(@event.Userid, 1.5f);
 
         return HookResult.Continue;
-    }
+    }*/
 
     public static HookResult OnPlayerHurt(EventPlayerHurt @event, GameEventInfo info)
     {
@@ -131,12 +146,12 @@ public class Invisible
     private static void SetPlayerInvisibleFor(CCSPlayerController player, float time)
     {
         if (!Util.IsPlayerValid(player)) return;
-        if (!Globals.InvisiblePlayers.TryGetValue(player!, out var data)) return;
+        if (!Globals.InvisiblePlayers.TryGetValue(player, out var data)) return;
 
         data.StartTime = Server.CurrentTime;
         data.EndTime = Server.CurrentTime + time;
 
-        Globals.InvisiblePlayers[player!] = data;
+        Globals.InvisiblePlayers[player] = data;
     }
 
     public static void Setup()
@@ -146,7 +161,7 @@ public class Invisible
         Globals.Plugin.RegisterEventHandler<EventBulletImpact>(OnPlayerShoot);
         Globals.Plugin.RegisterEventHandler<EventPlayerSound>(OnPlayerSound);
         Globals.Plugin.RegisterEventHandler<EventBombBegindefuse>(OnPlayerStartDefuse);
-        Globals.Plugin.RegisterEventHandler<EventWeaponReload>(OnPlayerReload);
+        // Globals.Plugin.RegisterEventHandler<EventWeaponReload>(OnPlayerReload);
         Globals.Plugin.RegisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
 
         Globals.Plugin.AddCommand("css_invisible", "Makes a player invisible", CommandInvisible.OnInvisibleCommand);
