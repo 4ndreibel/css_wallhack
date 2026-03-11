@@ -8,52 +8,53 @@ namespace Funnies;
 
 public static class Util
 {
-
+    /// <summary>
+    /// Returns the model path of a player's pawn.
+    /// </summary>
     public static string GetPlayerModel(CCSPlayerController player)
     {
-        // This hurts
-        return player.Pawn.Value!.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName;
+        return player.Pawn.Value!.CBodyComponent!.SceneNode!
+            .GetSkeletonInstance().ModelState.ModelName;
     }
 
-    public static bool IsPlayerValid([NotNullWhen(true)] CCSPlayerController? plr) => plr != null &&
-               plr.IsValid &&
-               plr.PlayerPawn != null &&
-               plr.PlayerPawn.IsValid &&
-               plr.Connected == PlayerConnectedState.PlayerConnected &&
-               !plr.IsHLTV;
+    /// <summary>
+    /// Checks if a player entity is valid and connected.
+    /// </summary>
+    public static bool IsPlayerValid([NotNullWhen(true)] CCSPlayerController? player) =>
+        player != null &&
+        player.IsValid &&
+        player.PlayerPawn != null &&
+        player.PlayerPawn.IsValid &&
+        player.Connected == PlayerConnectedState.PlayerConnected &&
+        !player.IsHLTV;
 
-    public static List<CCSPlayerController> GetValidPlayers() => [.. Utilities.GetPlayers().Where(IsPlayerValid)];
-    public static List<CCSPlayerController> GetBots() => [.. GetValidPlayers().Where(plr => plr.IsBot)];
-    public static List<CCSPlayerController> GetRealPlayers() => [.. GetValidPlayers().Where(plr => !plr.IsBot)];
-
-    public static float Map(float value, float fromMin, float fromMax, float toMin, float toMax)
+    /// <summary>
+    /// Returns all valid players (bots and humans).
+    /// </summary>
+    public static List<CCSPlayerController> GetValidPlayers()
     {
-        float normalized = (value - fromMin) / (fromMax - fromMin);
-        return toMin + normalized * (toMax - toMin);
+        return Utilities
+            .GetPlayers()
+            .Where(IsPlayerValid)
+            .ToList();
     }
 
-    public static CCSPlayerController? GetPlayerByName(string name)
-    {
-        return GetValidPlayers().FirstOrDefault(x => x!.PlayerName == name, null);
-    }
-
-    public static void ServerPrintToChat(CCSPlayerController player, string message)
-    {
-        player.PrintToChat($" {ChatColors.Green}[SERVER]{ChatColors.White} {message}");
-    }
-
-    public static List<CGameSceneNode> GetChildrenRecursive(CGameSceneNode gameSceneNode)
+    /// <summary>
+    /// Recursively collects all child scene nodes.
+    /// Useful for iterating model parts.
+    /// </summary>
+    public static List<CGameSceneNode> GetChildrenRecursive(CGameSceneNode node)
     {
         List<CGameSceneNode> children = [];
-        var currentChild = gameSceneNode.Child;
-        while (true)
+
+        var currentChild = node.Child;
+        while (currentChild != null)
         {
-            if (currentChild == null) break;
             children.Add(currentChild);
             currentChild = currentChild.NextSibling;
         }
 
-        foreach (var child in children)
+        foreach (var child in children.ToList())
         {
             children.AddRange(GetChildrenRecursive(child));
         }
