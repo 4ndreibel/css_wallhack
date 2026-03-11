@@ -22,10 +22,10 @@ jobs:
           dotnet-version: 6.0.x
 
       - name: Restore dependencies
-        run: dotnet restore src/Funnies.csproj
+        run: dotnet restore Funnies.csproj
 
       - name: Build DLL
-        run: dotnet build src/Funnies.csproj -c Release -o ./build
+        run: dotnet build Funnies.csproj -c Release -o ./build
 
       - name: Upload DLL
         uses: actions/upload-artifact@v3
