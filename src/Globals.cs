@@ -5,11 +5,8 @@ namespace Funnies;
 
 public static class Globals
 {
-    public static FunniesConfig Config { get; set; }
     public static List<CCSPlayerController> Wallhackers = [];
     public static Dictionary<CCSPlayerController, GlowData> GlowData = [];
-
-    public static Dictionary<CCSPlayerController, SoundData> InvisiblePlayers = [];
 
 #pragma warning disable CS8618
     public static FunniesPlugin Plugin;
